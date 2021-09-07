@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {
+                margin: 0;
+                font-family: "HelveticaNeueLTStd", "Helvetica Neue", "HelveticaNeue",
+    Helvetica, Arial, sans-serif;
+            }
+            body, #find-canvas {background:white}
+            #find-canvas {
+                border:1px solid #222;
+                margin-left: 0vw;
+            }
+
+
+
+            .layout-header {
+                overflow: hidden;
+                background-color: white;
+                padding: 4px 10px;
+            }
+
+            .layout-header a {
+                float: left;
+                color: black;
+                text-align: center;
+                padding-top: 12px;
+                margin-left: 12px;
+                margin-right: 12px;
+                margin-bottom: 12px;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+
+            .beatstreet-logo {
+                margin-top: 1vh;
+                font-size: 25px;
+                font-weight: bold;
+                transition: background-color 400ms ease;
+            }
+
+            .beatstreet-logo:hover {
+                transform: scale(1.03);
+            }
+
+            .login-color {
+                color: black;
+                text-decoration: none;
+            }
+
+            .layout-header-right {
+                margin-top: 1.7vh;
+                float: right;
+                font-size: 17px;
+            }
+
+            .header-link {
+            display: inline-block;
+            position: relative;
+            color: black;
+            }
+
+            .header-link:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: black;
+            transform-origin: bottom right;
+            transition: transform 0.25s ease-out;
+            }
+
+            .header-link:hover:after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+            }
+
+            .layout-hr {
+            margin-bottom: 0rem;
+            margin-top: 0rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 style="margin-bottom:0px;">
+            <div class="layout-header">
+                    <a href="" class="login-color beatstreet-logo">BEATSTREET</a>
+                    <div class="layout-header-right">
+            <a href="" class="header-link" id="how-btn">HOW</a>
+                        <a href="" class="login-color header-link" id="find-button">FIND</a>
+                        <a href="" class="login-color header-link" id="create-button">CREATE</a>
+                        <a href="" class="login-color header-link" id="profile-button">Liam</a>
+                    </div>
+            </div>
+        </h1>
+    </header>
+    <hr class="layout-hr">
+        <canvas id="find-canvas" height=200></canvas>
+        <audio id="audio-clip" crossOrigin="anonymous" autoplay loop></audio>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <button id="next-song">next song</button>
+
+        <script>
+            $("#find-canvas")
+                .prop("width", window.innerWidth)
+                .prop("height", window.innerHeight - 20); 
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            const c = document.getElementById("find-canvas");
+            const a = document.getElementById("audio-clip");
+            var isPlaying = true;
+            ctx = c.getContext("2d");
+            actx = new AudioContext();
+            c.height = c.height - 70;
+            cx = c.width * 0.5, cy = c.height * 0.5;
+            radiusMax = Math.min(cx, cy) - 20;
+            radiusMin = radiusMax * 0.1;
+            var srcNode;
+            audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/bounce.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
+            let i = 0;
+            nextSongBtn = document.getElementById("next-song")
+            resetCanvas(ctx, audios[i])
+            nextSongBtn.addEventListener("click", () => {
+                i++;
+                resetCanvas(ctx, audios[i])
+            })
+
+            function resetCanvas(ctx, audioClip) {
+                a.src = audioClip;
+                ctx.fillStyle = "#fff";
+                ctx.fillText("Loading audio...", 10, 10);
+
+                a.oncanplay=function() {
+                    if (srcNode) return;
+
+                    srcNode = actx.createMediaElementSource(this);
+
+                    bquad = actx.createBiquadFilter();
+                    bquad.type = "lowpass";
+                    bquad.frequency.value = 250;
+
+                    analyser = actx.createAnalyser();
+                    analyser.fftSize = 256;
+
+                    srcNode.connect(bquad);
+                    bquad.connect(analyser);
+                    srcNode.connect(actx.destination);
+
+                    fftLen = analyser.frequencyBinCount;
+                    fft = new Uint8Array(fftLen);
+
+                    ctx.lineWidth = 8;
+                    ctx.strokeStyle = "white";
+
+                    ctx.fillStyle = "black";
+
+                    render();
+                };
+
+                function render() {
+
+                    ctx.clearRect(0, 0, c.width, c.height);
+                    // clear semi-transparent
+                    ctx.fillRect(0, 0, c.width, c.height);
+                    
+                    // fill FFT buffer
+                    analyser.getByteFrequencyData(fft);
+                    
+                    // average data from some bands
+                    v = (fft[1] + fft[2]) / 512;
+                    
+                    // draw arc using interpolated range with exp. of v
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radiusMin + (radiusMax - radiusMin) * v * v * v * v, 0, 2*Math.PI);
+                    ctx.closePath();
+                    ctx.stroke();
+                    
+                    // feedback effect
+                    ctx.drawImage(c, -8, -8, c.width + 16, c.height + 16);
+                    
+                    requestAnimationFrame(render) 
+                }
+
+                    
+                c.onclick = () => {
+                    if (isPlaying) {
+                        a.pause();
+                        isPlaying = false;
+                    } else {
+                        a.play();
+                        isPlaying = true;
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
