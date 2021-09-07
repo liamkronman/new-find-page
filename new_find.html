@@ -87,18 +87,19 @@
         </style>
     </head>
     <body>
-        <h1 style="margin-bottom:0px;">
-            <div class="layout-header">
-                    <a href="" class="login-color beatstreet-logo">BEATSTREET</a>
-                    <div class="layout-header-right">
-            <a href="" class="header-link" id="how-btn">HOW</a>
-                        <a href="" class="login-color header-link" id="find-button">FIND</a>
-                        <a href="" class="login-color header-link" id="create-button">CREATE</a>
-                        <a href="" class="login-color header-link" id="profile-button">Liam</a>
-                    </div>
-            </div>
-        </h1>
-    </header>
+        <header>
+            <h1 style="margin-bottom:0px;">
+                <div class="layout-header">
+                        <a href="" class="login-color beatstreet-logo">BEATSTREET</a>
+                        <div class="layout-header-right">
+                <a href="" class="header-link" id="how-btn">HOW</a>
+                            <a href="" class="login-color header-link" id="find-button">FIND</a>
+                            <a href="" class="login-color header-link" id="create-button">CREATE</a>
+                            <a href="" class="login-color header-link" id="profile-button">Liam</a>
+                        </div>
+                </div>
+            </h1>
+        </header>
     <hr class="layout-hr">
         <canvas id="find-canvas" height=200></canvas>
         <audio id="audio-clip" crossOrigin="anonymous" autoplay loop></audio>
@@ -106,15 +107,18 @@
         <button id="next-song">next song</button>
 
         <script>
+            // document.body.addEventListener('scroll', () => {
+            //     console.log("scroll");
+            // });
             $("#find-canvas")
                 .prop("width", window.innerWidth)
                 .prop("height", window.innerHeight - 20); 
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             const c = document.getElementById("find-canvas");
             const a = document.getElementById("audio-clip");
-            var isPlaying = true;
-            ctx = c.getContext("2d");
-            actx = new AudioContext();
+            var isPlaying = false;
+            var ctx = c.getContext("2d");
+            var actx = new AudioContext();
             c.height = c.height - 70;
             cx = c.width * 0.5, cy = c.height * 0.5;
             radiusMax = Math.min(cx, cy) - 20;
@@ -123,74 +127,70 @@
             audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/bounce.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
             let i = 0;
             nextSongBtn = document.getElementById("next-song")
-            resetCanvas(ctx, audios[i])
+            a.src = audios[i];
             nextSongBtn.addEventListener("click", () => {
                 i++;
-                resetCanvas(ctx, audios[i])
+                a.src = audios[i];
             })
+            
+            ctx.fillStyle = "#fff";
+            ctx.fillText("Loading audio...", 10, 10);
+            a.oncanplay=function() {
+                if (srcNode) return;
 
-            function resetCanvas(ctx, audioClip) {
-                a.src = audioClip;
-                ctx.fillStyle = "#fff";
-                ctx.fillText("Loading audio...", 10, 10);
+                srcNode = actx.createMediaElementSource(this);
 
-                a.oncanplay=function() {
-                    if (srcNode) return;
+                bquad = actx.createBiquadFilter();
+                bquad.type = "lowpass";
+                bquad.frequency.value = 250;
+                analyser = actx.createAnalyser();
+                analyser.fftSize = 256;
 
-                    srcNode = actx.createMediaElementSource(this);
+                srcNode.connect(bquad);
+                bquad.connect(analyser);
+                srcNode.connect(actx.destination);
 
-                    bquad = actx.createBiquadFilter();
-                    bquad.type = "lowpass";
-                    bquad.frequency.value = 250;
+                fftLen = analyser.frequencyBinCount;
+                fft = new Uint8Array(fftLen);
 
-                    analyser = actx.createAnalyser();
-                    analyser.fftSize = 256;
+                ctx.lineWidth = 8;
+                ctx.strokeStyle = "white";
+                ctx.fillStyle = "black";
 
-                    srcNode.connect(bquad);
-                    bquad.connect(analyser);
-                    srcNode.connect(actx.destination);
+                render();
+            };
 
-                    fftLen = analyser.frequencyBinCount;
-                    fft = new Uint8Array(fftLen);
+            function render() {
 
-                    ctx.lineWidth = 8;
-                    ctx.strokeStyle = "white";
-
-                    ctx.fillStyle = "black";
-
-                    render();
-                };
-
-                function render() {
-
-                    ctx.clearRect(0, 0, c.width, c.height);
-                    // clear semi-transparent
-                    ctx.fillRect(0, 0, c.width, c.height);
+                ctx.clearRect(0, 0, c.width, c.height);
+                // clear semi-transparent
+                ctx.fillRect(0, 0, c.width, c.height);
                     
-                    // fill FFT buffer
-                    analyser.getByteFrequencyData(fft);
+                // fill FFT buffer
+                analyser.getByteFrequencyData(fft);
                     
-                    // average data from some bands
-                    v = (fft[1] + fft[2]) / 512;
+                // average data from some bands
+                v = (fft[1] + fft[2]) / 512;
                     
-                    // draw arc using interpolated range with exp. of v
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, radiusMin + (radiusMax - radiusMin) * v * v * v * v, 0, 2*Math.PI);
-                    ctx.closePath();
-                    ctx.stroke();
+                // draw arc using interpolated range with exp. of v
+                ctx.beginPath();
+                ctx.arc(cx, cy, radiusMin + (radiusMax - radiusMin) * v * v * v * v, 0, 2*Math.PI);
+                ctx.closePath();
+                ctx.stroke();
                     
-                    // feedback effect
-                    ctx.drawImage(c, -8, -8, c.width + 16, c.height + 16);
+                // feedback effect
+                ctx.drawImage(c, -8, -8, c.width + 16, c.height + 16);
                     
-                    requestAnimationFrame(render) 
-                }
+                requestAnimationFrame(render) 
 
                     
                 c.onclick = () => {
                     if (isPlaying) {
+                        actx.resume();
                         a.pause();
                         isPlaying = false;
                     } else {
+                        actx.resume();
                         a.play();
                         isPlaying = true;
                     }
