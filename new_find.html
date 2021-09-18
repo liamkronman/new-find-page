@@ -129,6 +129,7 @@
             audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/bounce.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
             let i = 0;
             var isNormalRender = true;
+            var counter = 0 
             nextSongBtn = document.getElementById("next-song")
             a.src = audios[i];
 
@@ -164,41 +165,47 @@
                 
             };
 
-            function move(){
-                ctx.width = window.innerWidth;
-                ctx.height = window.innerHeight;
-                x = x + velocity
-                if ((x+50)>ctx.width || x<0){
-                    velocity *=-1;
+            function animateSwish(oldColor, newColor, counter) {
+                console.log("animating swish for real")
+                ctx.fillStyle = oldColor;
+                ctx.fillRect(0, 0, c.width, c.height);
+                ctx.fillStyle = newColor;
+                if (counter == 0) {
+                    ctx.beginPath();       
+                    ctx.moveTo(0, c.height);
+                    ctx.lineTo(c.width, c.height);
+                    ctx.closePath();
+                    ctx.stroke();
+                } else {
+                    ctx.fillRect(0, c.height - counter, c.width, counter);
                 }
-                if (!isNormalRender) {
-                    draw()
-                }
-            }
 
-            function draw(){
-                ctx.fillStyle = "#E80C7A";
-                ctx.strokeStyle = "#000000";
-                ctx.lineWidth = '3';
-                ctx.fillRect(x, y, 50, 100);
-                ctx.strokeRect(x, y, 50, 100);
+                console.log(counter)
+                if (counter < c.height) {
+                    console.log("here")
+                    counter += 20;
+                    swishRequestId = window.requestAnimationFrame(() => {animateSwish(oldColor, newColor, counter)});
+                    console.log(swishRequestId)
+                } else {
+                    isNormalRender = true;
+                    normalRender();
+                }
             }
 
             nextSongBtn.addEventListener("click", () => {
+                window.cancelAnimationFrame(normalRenderRequestId)
                 i++;
                 a.src = "";
                 a.pause();
                 actx.resume();
                 isPlaying = false;
                 isNormalRender = false;
-                move();
                 a.src = audios[i];
                 a.oncanplay=function() {
                     ctx.lineWidth = 8;
                     ctx.strokeStyle = "white";
                     nextProj("black", "brown");
                 };
-                isNormalRender = true;
                 actx.resume();
                 a.play();
                 isPlaying = true;
@@ -228,7 +235,11 @@
                 ctx.drawImage(c, -8, -8, c.width + 16, c.height + 16);
                     
                 if (isNormalRender) {
-                    requestAnimationFrame(normalRender)
+                    normalRenderRequestId = requestAnimationFrame(normalRender)
+                    console.log(normalRenderRequestId)
+                } else {
+                    console.log("animating swish")
+                    animateSwish("black", "brown", counter);
                 }
                     
                 c.onclick = () => {
