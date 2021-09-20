@@ -104,6 +104,7 @@
         <canvas id="find-canvas" height=200></canvas>
         <audio id="audio-clip" crossOrigin="anonymous" autoplay loop></audio>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <button id="prev-song">previous song</button>
         <button id="next-song">next song</button>
 
         <script>
@@ -129,7 +130,9 @@
             audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/bounce.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
             let i = 0;
             var isNormalRender = true;
-            var counter = 0 
+            var isPrev = false;
+            var isNext = false;
+            prevSongBtn = document.getElementById("prev-song")
             nextSongBtn = document.getElementById("next-song")
             a.src = audios[i];
 
@@ -156,17 +159,36 @@
                 ctx.lineWidth = 8;
                 ctx.strokeStyle = "white";
                 ctx.fillStyle = "black";
-
-                if (isNormalRender) {
-                    normalRender();
-                } else {
-                    nextProj("black", "brown");
-                }
+                normalRender();
                 
             };
 
-            function animateSwish(oldColor, newColor, counter) {
-                console.log("animating swish for real")
+            function animateSwishPrev(oldColor, newColor, counter) {
+                console.log("prev")
+                ctx.fillStyle = oldColor;
+                ctx.fillRect(0, 0, c.width, c.height);
+                ctx.fillStyle = newColor;
+                if (counter == 0) {
+                    ctx.beginPath();       
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(c.width, 0);
+                    ctx.closePath();
+                    ctx.stroke();
+                } else {
+                    ctx.fillRect(0, counter, c.width, counter);
+                }
+                if (counter < c.height) {
+                    console.log("prev frame")
+                    counter += 20;
+                    swishRequestId = window.requestAnimationFrame(() => {animateSwishPrev(oldColor, newColor, counter)});
+                } else {
+                    isNormalRender = true;
+                    isPrev = false;
+                    normalRender();
+                }
+            }
+
+            function animateSwishNext(oldColor, newColor, counter) {
                 ctx.fillStyle = oldColor;
                 ctx.fillRect(0, 0, c.width, c.height);
                 ctx.fillStyle = newColor;
@@ -180,20 +202,42 @@
                     ctx.fillRect(0, c.height - counter, c.width, counter);
                 }
 
-                console.log(counter)
                 if (counter < c.height) {
-                    console.log("here")
+                    console.log("next frame")
                     counter += 20;
-                    swishRequestId = window.requestAnimationFrame(() => {animateSwish(oldColor, newColor, counter)});
-                    console.log(swishRequestId)
+                    swishRequestId = window.requestAnimationFrame(() => {animateSwishNext(oldColor, newColor, counter)});
                 } else {
                     isNormalRender = true;
+                    isNext = false;
                     normalRender();
                 }
             }
 
-            nextSongBtn.addEventListener("click", () => {
-                window.cancelAnimationFrame(normalRenderRequestId)
+            function prevSong() {
+                window.cancelAnimationFrame(normalRenderRequestId);
+                if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
+                i--;
+                a.src = "";
+                a.pause();
+                actx.resume();
+                isPlaying = false;
+                isNormalRender = false;
+                a.src = audios[i];
+                a.oncanplay=function() {
+                    ctx.lineWidth = 8;
+                    ctx.strokeStyle = "white";
+                };
+                actx.resume();
+                a.play();
+                isPlaying = true;
+                isPrev = true;
+                ctx.strokeStyle = "white";
+                normalRender();
+            }
+
+            function nextSong() {
+                window.cancelAnimationFrame(normalRenderRequestId);
+                if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
                 i++;
                 a.src = "";
                 a.pause();
@@ -204,13 +248,21 @@
                 a.oncanplay=function() {
                     ctx.lineWidth = 8;
                     ctx.strokeStyle = "white";
-                    nextProj("black", "brown");
                 };
                 actx.resume();
                 a.play();
                 isPlaying = true;
+                isNext = true;
                 ctx.strokeStyle = "white";
                 normalRender();
+            }
+
+            prevSongBtn.addEventListener("click", () => {
+                prevSong();
+            })
+
+            nextSongBtn.addEventListener("click", () => {
+                nextSong();
             })
 
             function normalRender() {
@@ -236,10 +288,13 @@
                     
                 if (isNormalRender) {
                     normalRenderRequestId = requestAnimationFrame(normalRender)
-                    console.log(normalRenderRequestId)
                 } else {
-                    console.log("animating swish")
-                    animateSwish("black", "brown", counter);
+                    if (isPrev) {
+                        animateSwishPrev("brown", "black", 0);
+                    }
+                    if (isNext) {
+                        animateSwishNext("black", "brown", 0);
+                    }
                 }
                     
                 c.onclick = () => {
@@ -253,14 +308,23 @@
                         isPlaying = true;
                     }
                 }
+
+                document.body.onkeyup = function(e){
+                    if(e.keyCode == 32){
+                        if (isPlaying) {
+                            actx.resume();
+                            a.pause();
+                            isPlaying = false;
+                        } else {
+                            actx.resume();
+                            a.play();
+                            isPlaying = true;
+                        }
+                    }
+                }
             }
 
-            function nextProj(oldColor, newColor) {
-                // clear semi-transparent
-                ctx.fillStyle = oldColor;
-                ctx.fillRect(0, 0, c.width, c.height);
-                ctx.fillStyle = newColor;
-            }
+
         </script>
     </body>
 </html>
