@@ -164,7 +164,6 @@
             };
 
             function animateSwishPrev(oldColor, newColor, counter) {
-                console.log("prev")
                 ctx.fillStyle = oldColor;
                 ctx.fillRect(0, 0, c.width, c.height);
                 ctx.fillStyle = newColor;
@@ -175,10 +174,9 @@
                     ctx.closePath();
                     ctx.stroke();
                 } else {
-                    ctx.fillRect(0, counter, c.width, counter);
+                    ctx.fillRect(0, 0, c.width, counter);
                 }
                 if (counter < c.height) {
-                    console.log("prev frame")
                     counter += 20;
                     swishRequestId = window.requestAnimationFrame(() => {animateSwishPrev(oldColor, newColor, counter)});
                 } else {
@@ -203,7 +201,6 @@
                 }
 
                 if (counter < c.height) {
-                    console.log("next frame")
                     counter += 20;
                     swishRequestId = window.requestAnimationFrame(() => {animateSwishNext(oldColor, newColor, counter)});
                 } else {
