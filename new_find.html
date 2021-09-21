@@ -175,7 +175,6 @@
                 position: absolute;
                 bottom: 75px;
                 text-align:center;
-                left: 45%;
                 color: white;
             }
 
@@ -247,10 +246,12 @@
             prevSongBtn = document.getElementById("prev-song")
             nextSongBtn = document.getElementById("next-song")
             a.src = audios[i];
+            titleCard = document.getElementById("find-title-card");
             titleDiv = document.getElementById("title");
             ownerDiv = document.getElementById("owner");
-            titleDiv.innerHTML = titles[i]
-            ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`
+            titleDiv.innerHTML = titles[i];
+            ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`;
+            titleCard.style.marginLeft = `${(window.innerWidth - titleCard.offsetWidth) / 2}px`;
 
             ctx.fillStyle = "#fff";
             ctx.fillText("Loading audio...", 10, 10);
@@ -330,8 +331,9 @@
                 window.cancelAnimationFrame(normalRenderRequestId);
                 if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
                 i--;
-                titleDiv.innerHTML = titles[i]
-                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`
+                titleDiv.innerHTML = titles[i];
+                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`;
+                titleCard.style.marginLeft = `${(window.innerWidth - titleCard.offsetWidth) / 2}px`;
                 a.src = "";
                 a.pause();
                 actx.resume();
@@ -354,8 +356,9 @@
                 window.cancelAnimationFrame(normalRenderRequestId);
                 if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
                 i++;
-                titleDiv.innerHTML = titles[i]
-                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`
+                titleDiv.innerHTML = titles[i];
+                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`;
+                titleCard.style.marginLeft = `${(window.innerWidth - titleCard.offsetWidth) / 2}px`;
                 a.src = "";
                 a.pause();
                 actx.resume();
