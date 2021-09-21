@@ -170,6 +170,19 @@
                 -o-transform: rotate(180deg);
                 transform: rotate(180deg);
             }
+
+            #find-title-card {
+                position: absolute;
+                bottom: 75px;
+                text-align:center;
+                left: 45%;
+                color: white;
+            }
+
+            #title {
+                font-weight: bold;
+                font-size: 30px;
+            }
         </style>
     </head>
     <body>
@@ -195,7 +208,10 @@
         <div class="find-btn-container" id="share-btn-container"><button id="share" class="find-btn"><img src="share.svg" height="25px" width="25px"></button><br>SHARE</div>
         <button id="prev-song"><img src="up.svg" height="75px"></button>
         <button id="next-song"><img src="up.svg" id="rotate-arrow" height="75px"></button>
-
+        <div id="find-title-card">
+            <div id="title"></div>
+            <div id="owner"></div>
+        </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script>
             $("#find-canvas")
@@ -222,6 +238,8 @@
             var y=5;
             var velocity = 10;
             audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/bounce.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
+            titles = ["Song One", "whatevs"]
+            owners = ["YS Montana", "you"]
             let i = 0;
             var isNormalRender = true;
             var isPrev = false;
@@ -229,6 +247,10 @@
             prevSongBtn = document.getElementById("prev-song")
             nextSongBtn = document.getElementById("next-song")
             a.src = audios[i];
+            titleDiv = document.getElementById("title");
+            ownerDiv = document.getElementById("owner");
+            titleDiv.innerHTML = titles[i]
+            ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`
 
             ctx.fillStyle = "#fff";
             ctx.fillText("Loading audio...", 10, 10);
@@ -308,6 +330,8 @@
                 window.cancelAnimationFrame(normalRenderRequestId);
                 if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
                 i--;
+                titleDiv.innerHTML = titles[i]
+                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`
                 a.src = "";
                 a.pause();
                 actx.resume();
@@ -330,6 +354,8 @@
                 window.cancelAnimationFrame(normalRenderRequestId);
                 if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
                 i++;
+                titleDiv.innerHTML = titles[i]
+                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`
                 a.src = "";
                 a.pause();
                 actx.resume();
