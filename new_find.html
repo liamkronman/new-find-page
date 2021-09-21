@@ -84,6 +84,62 @@
             margin-bottom: 0rem;
             margin-top: 0rem;
             }
+
+
+
+
+
+            .find-btn-container {
+                text-align: center;
+                font-weight: bold;
+                color: white;
+                cursor: pointer;
+            }
+
+            .find-btn {
+                border: none;
+                text-decoration: none;
+                border-radius: 50%;
+                padding: 10px;
+                margin-bottom: 5px;
+                cursor: pointer;
+            }
+
+            #collab-btn-container {
+                position: absolute;
+                bottom: 65vh;
+                left: 50px;
+            }
+
+            #save-btn-container {
+                position: absolute;
+                bottom: 47vh;
+                left: 53px;
+            }
+
+            #save {
+                padding: 15px;
+            }
+
+            #comments-btn-container {
+                position: absolute;
+                bottom: 30vh;
+                left: 34.5px;
+            }
+
+            #comments {
+                padding: 15px;
+            }
+
+            #share-btn-container {
+                position: absolute;
+                bottom: 13vh;
+                left: 53.5px;
+            }
+
+            #share {
+                padding: 15px;
+            }
         </style>
     </head>
     <body>
@@ -92,7 +148,7 @@
                 <div class="layout-header">
                         <a href="" class="login-color beatstreet-logo">BEATSTREET</a>
                         <div class="layout-header-right">
-                <a href="" class="header-link" id="how-btn">HOW</a>
+                            <a href="" class="header-link" id="how-btn">HOW</a>
                             <a href="" class="login-color header-link" id="find-button">FIND</a>
                             <a href="" class="login-color header-link" id="create-button">CREATE</a>
                             <a href="" class="login-color header-link" id="profile-button">Liam</a>
@@ -103,10 +159,14 @@
     <hr class="layout-hr">
         <canvas id="find-canvas" height=200></canvas>
         <audio id="audio-clip" crossOrigin="anonymous" autoplay loop></audio>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <div class="find-btn-container" id="collab-btn-container"><button id="collab" class="find-btn"><img src="collab.svg"></button><br>COLLAB</div>
+        <div class="find-btn-container" id="save-btn-container"><button id="save" class="find-btn"><img src="save.svg"></button><br>SAVE</div>
+        <div class="find-btn-container" id="comments-btn-container"><button id="comments" class="find-btn"><img src="comment.svg" height="25px" width="25px"></button><br>COMMENTS</div>
+        <div class="find-btn-container" id="share-btn-container"><button id="share" class="find-btn"><img src="share.svg" height="25px" width="25px"></button><br>SHARE</div>
         <button id="prev-song">previous song</button>
         <button id="next-song">next song</button>
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script>
             $("#find-canvas")
                 .prop("width", window.innerWidth)
