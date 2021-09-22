@@ -103,6 +103,7 @@
                 padding: 10px;
                 margin-bottom: 5px;
                 cursor: pointer;
+                box-shadow: 0 3px 6px rgb(0 0 0 / 60%);
             }
 
             #collab-btn-container {
@@ -236,7 +237,7 @@
             var x=5;
             var y=5;
             var velocity = 10;
-            audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/bounce.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
+            audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
             titles = ["Song One", "whatevs"]
             owners = ["YS Montana", "you"]
             let i = 0;
@@ -278,8 +279,13 @@
                 ctx.fillStyle = "black";
                 normalRender();
                 
-            };
 
+                a.addEventListener("ended", () => {
+                    console.log("over")
+                    nextSong();
+                })
+
+            };
             function animateSwishPrev(oldColor, newColor, counter) {
                 ctx.fillStyle = oldColor;
                 ctx.fillRect(0, 0, c.width, c.height);
