@@ -94,6 +94,16 @@
                 font-weight: bold;
                 color: white;
                 cursor: pointer;
+                opacity: 1;
+                -webkit-transition: opacity 0.3s ease-in-out;
+                -moz-transition: opacity 0.3s ease-in-out;
+                -ms-transition: opacity 0.3s ease-in-out;
+                -o-transition: opacity 0.3s ease-in-out;
+                transition: opacity 0.3s ease-in-out;
+            }
+
+            .fade {
+                opacity: 0;
             }
 
             .find-btn {
@@ -200,7 +210,7 @@
                 transform: scale(1.05);
             }
 
-
+            
         </style>
     </head>
     <body>
@@ -224,8 +234,8 @@
         <div class="find-btn-container" id="save-btn-container"><button id="save" class="find-btn"><img src="save.svg" id="save-img"></button><br>SAVE</div>
         <div class="find-btn-container" id="comments-btn-container"><button id="comments" class="find-btn"><img src="comment.svg" height="25px" width="25px"></button><br>COMMENTS</div>
         <div class="find-btn-container" id="share-btn-container"><button id="share" class="find-btn"><img src="share.svg" height="25px" width="25px" id="share-img"></button><br>SHARE</div>
-        <button id="prev-song"><img src="up.svg" height="75px" class="find-arrow"></button>
-        <button id="next-song"><img src="up.svg" id="rotate-arrow" height="75px" class="find-arrow"></button>
+        <button id="prev-song" class="find-arrow"><img src="up.svg" height="75px"></button>
+        <button id="next-song" class="find-arrow"><img src="up.svg" id="rotate-arrow" height="75px"></button>
         <div id="find-title-card">
             <div id="title"></div>
             <div id="owner"></div>
@@ -258,6 +268,7 @@
             audios = ["https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3", "https://beatstreet-bucket-1.s3.amazonaws.com/media/samples/doom_on_da_acap.mp3"]
             titles = ["Song One", "whatevs"]
             owners = ["YS Montana", "you"]
+            colors = ["#00363d", "#f79a3e", "#eb6651", "#30aabc", "#eb4962", "#37b8af", "#78a300", "#f0ca28"]
             let i = 0;
             var isNormalRender = true;
             var isPrev = false;
@@ -273,6 +284,10 @@
             saveBtn = document.getElementById("save");
             saveImg = document.getElementById("save-img");
             saveContainer = document.getElementById("save-btn-container");
+            findBtnContainers = document.getElementsByClassName("find-btn-container");
+            findArrows = document.getElementsByClassName("find-arrow");
+            console.log(findArrows)
+            var timeout;
             shareButton.addEventListener("mouseover", () => {
                 shareImg.src = 'share-filled.svg';
             })
@@ -285,8 +300,36 @@
                 saveImg.src = "save-filled.svg";
                 saveContainer.style.transform = "scale(1.05)";
             });
+
+            document.onmousemove = function(){
+                fadeBackBars();
+                clearTimeout(timeout);
+                console.log(timeout);
+                timeout = setTimeout(() => {fadeOutBars()}, 3000);
+            }
+
+            function fadeOutBars() {
+                console.log("fade out")
+                for (let c = 0; c < findBtnContainers.length; c++) {
+                    findBtnContainers[c].classList.add('fade');
+                }
+                for (let b = 0; b < findArrows.length; b++) {
+                    findArrows[b].classList.add('fade');
+                }
+            }
+
+            function fadeBackBars() {
+                console.log("fade in")
+                for (let c = 0; c < findBtnContainers.length; c++) {
+                    findBtnContainers[c].classList.remove('fade');
+                }
+                for (let b = 0; b < findArrows.length; b++) {
+                    findArrows[b].classList.remove('fade');
+                }
+            }
+
             titleDiv.innerHTML = titles[i];
-            ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`;
+            ownerDiv.innerHTML = `By <a href="" style="color:#4169e1;">${owners[i]}</a>`;
             titleCard.style.marginLeft = `${(window.innerWidth - titleCard.offsetWidth) / 2}px`;
 
             ctx.fillStyle = "#fff";
@@ -311,7 +354,7 @@
 
                 ctx.lineWidth = 8;
                 ctx.strokeStyle = "white";
-                ctx.fillStyle = "black";
+                ctx.fillStyle = colors[i];
                 normalRender();
 
             };
@@ -371,7 +414,7 @@
                 if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
                 i--;
                 titleDiv.innerHTML = titles[i];
-                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`;
+                ownerDiv.innerHTML = `By <a href="" style="color:#4169e1;">${owners[i]}</a>`;
                 titleCard.style.marginLeft = `${(window.innerWidth - titleCard.offsetWidth) / 2}px`;
                 a.src = "";
                 a.pause();
@@ -396,7 +439,7 @@
                 if (typeof swishRequestId !== 'undefined') window.cancelAnimationFrame(swishRequestId);
                 i++;
                 titleDiv.innerHTML = titles[i];
-                ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`;
+                ownerDiv.innerHTML = `By <a href="" style="color:#4169e1;">${owners[i]}</a>`;
                 titleCard.style.marginLeft = `${(window.innerWidth - titleCard.offsetWidth) / 2}px`;
                 a.src = "";
                 a.pause();
@@ -464,10 +507,10 @@
                     normalRenderRequestId = requestAnimationFrame(normalRender)
                 } else {
                     if (isPrev) {
-                        animateSwishPrev("brown", "black", 0);
+                        animateSwishPrev(colors[i+1], colors[i], 0);
                     }
                     if (isNext) {
-                        animateSwishNext("black", "brown", 0);
+                        animateSwishNext(colors[i-1], colors[i], 0);
                     }
                 }
                     
