@@ -109,7 +109,11 @@
             #collab-btn-container {
                 position: absolute;
                 bottom: 65vh;
-                left: 50px;
+                left: 50px
+            }
+
+            .find-btn-container:hover {
+                transform: scale(1.05);
             }
 
             #save-btn-container {
@@ -172,6 +176,14 @@
                 transform: rotate(180deg);
             }
 
+            #rotate-arrow:hover {
+                -webkit-transform:rotate(180deg) scale(1.05);
+                -moz-transform: rotate(180deg) scale(1.05);
+                -ms-transform: rotate(180deg) scale(1.05);
+                -o-transform: rotate(180deg) scale(1.05);
+                transform: rotate(180deg) scale(1.05);
+            }
+
             #find-title-card {
                 position: absolute;
                 bottom: 75px;
@@ -183,6 +195,12 @@
                 font-weight: bold;
                 font-size: 30px;
             }
+
+            .find-arrow:hover {
+                transform: scale(1.05);
+            }
+
+
         </style>
     </head>
     <body>
@@ -201,13 +219,13 @@
         </header>
     <hr class="layout-hr">
         <canvas id="find-canvas" height=200></canvas>
-        <audio id="audio-clip" crossOrigin="anonymous" autoplay loop></audio>
+        <audio id="audio-clip" crossOrigin="anonymous" autoplay></audio>
         <div class="find-btn-container" id="collab-btn-container"><button id="collab" class="find-btn"><img src="collab.svg"></button><br>COLLAB</div>
-        <div class="find-btn-container" id="save-btn-container"><button id="save" class="find-btn"><img src="save.svg"></button><br>SAVE</div>
+        <div class="find-btn-container" id="save-btn-container"><button id="save" class="find-btn"><img src="save.svg" id="save-img"></button><br>SAVE</div>
         <div class="find-btn-container" id="comments-btn-container"><button id="comments" class="find-btn"><img src="comment.svg" height="25px" width="25px"></button><br>COMMENTS</div>
-        <div class="find-btn-container" id="share-btn-container"><button id="share" class="find-btn"><img src="share.svg" height="25px" width="25px"></button><br>SHARE</div>
-        <button id="prev-song"><img src="up.svg" height="75px"></button>
-        <button id="next-song"><img src="up.svg" id="rotate-arrow" height="75px"></button>
+        <div class="find-btn-container" id="share-btn-container"><button id="share" class="find-btn"><img src="share.svg" height="25px" width="25px" id="share-img"></button><br>SHARE</div>
+        <button id="prev-song"><img src="up.svg" height="75px" class="find-arrow"></button>
+        <button id="next-song"><img src="up.svg" id="rotate-arrow" height="75px" class="find-arrow"></button>
         <div id="find-title-card">
             <div id="title"></div>
             <div id="owner"></div>
@@ -250,6 +268,23 @@
             titleCard = document.getElementById("find-title-card");
             titleDiv = document.getElementById("title");
             ownerDiv = document.getElementById("owner");
+            shareButton = document.getElementById("share");
+            shareImg = document.getElementById("share-img");
+            saveBtn = document.getElementById("save");
+            saveImg = document.getElementById("save-img");
+            saveContainer = document.getElementById("save-btn-container");
+            shareButton.addEventListener("mouseover", () => {
+                shareImg.src = 'share-filled.svg';
+            })
+
+            shareButton.addEventListener("mouseout", () => {
+                shareImg.src = 'share.svg';
+            })
+
+            saveBtn.addEventListener("click", () => {
+                saveImg.src = "save-filled.svg";
+                saveContainer.style.transform = "scale(1.05)";
+            });
             titleDiv.innerHTML = titles[i];
             ownerDiv.innerHTML = `By <a href="" style="color:lightblue;">${owners[i]}</a>`;
             titleCard.style.marginLeft = `${(window.innerWidth - titleCard.offsetWidth) / 2}px`;
@@ -278,13 +313,11 @@
                 ctx.strokeStyle = "white";
                 ctx.fillStyle = "black";
                 normalRender();
-                
 
-                a.addEventListener("ended", () => {
-                    console.log("over")
-                    nextSong();
-                })
+            };
 
+            a.onended = function() {
+                nextSong();
             };
             function animateSwishPrev(oldColor, newColor, counter) {
                 ctx.fillStyle = oldColor;
